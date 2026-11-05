@@ -1,0 +1,102 @@
+<% title = "Lunar Money - Dashboard" %>
+
+<div class="container py-5">
+	<div class="row g-3">
+
+		<!-- Savings To Date -->
+		<div class="col-md-6">
+			<div class="card p-4">
+				<h5 class="mb-3">Savings To Date</h5>
+				<% if(typeof savings !== 'undefined' && savings){ %>
+				<h3>$<%= savings.current.toFixed(2) %> / $<%= savings.goal.toFixed(2) %></h3>
+				<div class="progress mt-3">
+					<div class="progress-bar bg-success" role="progressbar"
+						style="width: <%= Math.min((savings.current / savings.goal * 100), 100).toFixed(0) %>%;">
+						<%= Math.min((savings.current / savings.goal * 100), 100).toFixed(0) %>%
+					</div>
+				</div>
+				<p class="mt-2 small-font ">Last updated: <%= savings.lastUpdated %></p>
+				<% } else { %>
+				<p class="">No savings data available yet.</p>
+				<% } %>
+			</div>
+		</div>
+
+		<!-- Upcoming Recurring Transactions -->
+		<div class="col-md-6">
+			<div class="card p-4">
+				<h5 class="mb-3">Upcoming Recurring Transactions</h5>
+				<% if(typeof recurring !== 'undefined' && recurring){ %>
+				<% if (recurring.length > 0) { %>
+				<ul class="list-group list-group-flush">
+					<% recurring.forEach(item => { %>
+					<li class="list-group-item d-flex justify-content-between align-items-center dark-li">
+						<span><%= item.name %></span>
+						<div class="d-flex gap-2 align-items-center">
+							<span
+								class="badge <%= item.amount.startsWith('+') ? 'bg-success' : 'bg-danger' %>"><%= item.amount %></span>
+							<span class="small"><%= item.date %></span>
+						</div>
+					</li>
+					<% }) %>
+				</ul>
+				<% } else { %>
+				<p class="">No upcoming recurring transactions.</p>
+				<% } %>
+				<% } else { %>
+				<p class="">No upcoming recurring transactions.</p>
+				<% } %>
+			</div>
+		</div>
+
+		<!-- Insights -->
+		<div class="col-md-6">
+			<div class="card p-4">
+				<h5 class="mb-3">Insights</h5>
+				<% if(typeof insights !== 'undefined' && insights){ %>
+				<% if (insights.length > 0) { %>
+				<ul class="list-group list-group-flush">
+					<% insights.forEach(insight => { %>
+					<li class="list-group-item dark-li">
+						<strong><%= insight.title %>:</strong> <%= insight.description %>
+					</li>
+					<% }) %>
+				</ul>
+				<% } else { %>
+				<p class="">No insights available yet. Add some transactions to see spending patterns!</p>
+				<% } %>
+				<% } else { %>
+				<p class="">No insights available yet.</p>
+				<% } %>
+			</div>
+		</div>
+
+		<!-- Goals -->
+		<div class="col-md-6">
+			<div class="card p-4">
+				<h5 class="mb-3">Goals</h5>
+				<% if(typeof goals !== 'undefined' && goals){ %>
+				<% if (goals.length > 0) { %>
+				<ul class="list-group list-group-flush">
+					<% goals.forEach(goal => { %>
+					<li class="list-group-item d-flex justify-content-between align-items-center dark-li">
+						<span><%= goal.name %></span>
+						<div class="progress flex-grow-1 ms-3 me-2" style="height: 16px;">
+							<div class="progress-bar" role="progressbar" style="width: <%= goal.progress %>%;">
+								<%= goal.progress %>%
+							</div>
+						</div>
+					</li>
+					<% }) %>
+				</ul>
+				<% } else { %>
+				<p class="">No goals set yet. Create one to start tracking your progress!</p>
+				<% } %>
+				<% } else { %>
+				<p class="">No goals set yet.</p>
+				<% } %>
+			</div>
+		</div>
+
+	</div>
+</div>

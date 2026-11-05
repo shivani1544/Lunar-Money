@@ -1,0 +1,291 @@
+/* ==================== GENERAL ======================== */
+body {
+	height: 100vh;
+	background-color: #121212;
+	color: #bbb;
+}
+
+/* applies flex to most of the app but not body so bootsrtap works with modals correctly */
+.app-container {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.small-font {
+	font-size: small;
+}
+
+/* ==================== SIDE BAR ======================== */
+.sidebar {
+	background-color: #121212;
+	border-right: 1px solid #333;
+	height: 100%;
+	min-width: 180px;
+}
+
+.sidebar .nav-link {
+	font-weight: 500;
+	padding: 12px 16px;
+	border-bottom: 1px solid #333;
+}
+
+.sidebar .nav-link:hover {
+	background-color: #79e69a;
+}
+
+.nav-link.active {
+	background-color: #79e69a;
+	color: white !important;
+	font-weight: bold;
+}
+
+
+/* ==================== HEADER ======================== */
+.header {
+	background-color: #1f1f1f;
+	border-bottom: 1px solid #333;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 20px;
+	font-weight: bold;
+	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+
+/* ===================== CARDS ===================== */
+.card {
+	color: #79e69ab5;
+	background-color: #2a2a2a;
+	border: 1px solid #444;
+	text-align: center;
+	font-weight: bold;
+}
+
+/* ===================== AUTH PAGE ===================== */
+
+body.auth-page {
+	min-height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #121212;
+	padding: 20px;
+}
+
+.auth-card {
+	max-width: 420px;
+	width: 100%;
+	background-color: #2a2a2a;
+	color: #f1f1f1;
+	padding: 2rem 2.5rem;
+	border-radius: 1rem;
+	box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.5);
+	text-align: center;
+}
+
+/* ===================== MODALS ===================== */
+
+
+.modal-dialog {
+	margin-top: 16vh;
+	margin-bottom: auto;
+}
+
+.modal-content {
+	background-color: #1f1f1f !important;
+	color: #f1f1f1 !important;
+	border: 1px solid #333;
+}
+
+.modal-header,
+.modal-footer {
+	background-color: #1f1f1f !important;
+	border-color: #333 !important;
+	color: #f1f1f1 !important;
+}
+
+.modal-title {
+	color: #f1f1f1 !important;
+}
+
+.btn-close {
+	filter: invert(1) brightness(1.5);
+}
+
+/* ===================== FORMS ===================== */
+
+label {
+	color: #f1f1f1 !important;
+}
+
+.form-control {
+	background-color: #2a2a2a !important;
+	color: #f1f1f1 !important;
+	border: 1px solid #444 !important;
+}
+
+.form-control {
+	background-color: #2a2a2a !important;
+	color: #f1f1f1 !important;
+	border: 1px solid #444 !important;
+}
+
+::placeholder {
+	color: #bbb !important;
+	opacity: 1;
+}
+
+/* ===================== TABLES ===================== */
+
+.custom-table-striped #custom-table-header {
+	--bs-table-bg: #111;
+}
+
+.custom-table-striped {
+	--bs-table-bg: transparent;
+	--bs-table-color: #bbb;
+	--bs-table-border-color: #131313;
+}
+
+.custom-table-striped tbody tr:nth-of-type(odd) {
+	background-color: #2a2a2a !important;
+}
+
+.custom-table-striped tbody tr:nth-of-type(even) {
+	background-color: #1f1f1f !important;
+}
+
+.custom-table-striped tbody tr:hover {
+	background-color: #79e69a !important;
+}
+
+/* ===================== PROGRESS BARS ===================== */
+.progress {
+	background-color: #333;
+	height: 18px;
+	border-radius: 8px;
+}
+
+.progress-bar {
+	background-color: #79e69ab5;
+	color: #e0e1dd;
+	font-weight: 600;
+	transition: width 0.6s ease;
+}
+
+.progress-bar.bg-danger {
+	background-color: #f45b69;
+	color: #fff;
+}
+
+/* Alert messages */
+.budget-alert,
+.goal-alert {
+	background-color: #f45b69;
+	color: #fff;
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-weight: 600;
+	margin-top: 8px;
+}
+
+/* ========================= Budgeting / Goals Styles ========================= */
+
+/* Row for each category or goal entry */
+#categoryContainer .category-row,
+#goalsList .category-row {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+}
+
+/* Small input fields */
+#categoryContainer .small-input,
+#goalsList .small-input {
+	width: 120px;
+}
+
+/* Muted or secondary text for helper labels */
+#categoryContainer .muted,
+#goalsList .muted {
+	color: #6c757d;
+}
+
+/* Action buttons within category/goal rows (Edit/Delete) */
+#categoryContainer .category-actions button,
+#goalsList .category-actions button {
+	margin-left: 0.25rem;
+}
+
+/* Text indicating budget used or progress percentage */
+#categoryContainer .budget-used,
+#goalsList .budget-used {
+	font-weight: 600;
+}
+
+.budget-alert {
+	background-color: #f45b69;
+	color: #fff;
+	padding: 8px 12px;
+	border-radius: 6px;
+	font-weight: 600;
+	margin-top: 10px;
+	text-align: center;
+}
+
+/* ========================= Notifications Styles ========================= */
+
+#notificationsContainer {
+	background-color: #1f1f1f !important;
+	color: #e5e5e5;
+}
+
+/* Individual notifications */
+.notification-item {
+	padding: 8px 10px;
+	border-radius: 6px;
+	background-color: #2a2a2a;
+	margin-bottom: 6px;
+	cursor: pointer;
+}
+
+/* Unread highlight */
+.notification-item.unread {
+	border-left: 4px solid #0d6efd;
+	background-color: #454155;
+	font-weight: 500;
+}
+
+/* Timestamp */
+.notification-item .small {
+	color: #9ca3af !important;
+	/* soft gray */
+}
+
+/* HR separators */
+#notificationsContainer hr {
+	border-color: #3a3a3a !important;
+}
+
+/* "Mark all as read" button */
+#markAllReadBtn {
+	color: #a3c4ff !important;
+	/* soft blue accent */
+}
+
+#markAllReadBtn:hover {
+	text-decoration: underline;
+	color: #cbe0ff !important;
+}
+
+/* Badge (red pops well on dark) */
+#notificationBadge {
+	background-color: #dc3545 !important;
+}
+
+.dark-li {
+	color: #e5e5e5;
+	background-color: #2a2a2a;
+}

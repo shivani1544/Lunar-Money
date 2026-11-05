@@ -1,0 +1,76 @@
+<% title = "Lunar Money - Account" %>
+
+<div class="container py-4">
+	<h2 class="mb-4">Account Settings</h2>
+
+	<!-- Top Section: Username, Email, Currency -->
+
+	<div class="card p-4 mb-4 shadow-sm">
+		<h5 class="mb-3">Profile</h5>
+		<!-- keeping this as post because there currently is a bug stopping the put route from working with method override -->
+		<form action="/account/update" method="POST">
+			<div class="row mb-3">
+				<label for="username" class="col-sm-2 col-form-label">Username</label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control" id="username" name="username" value="<%= user.username %>"
+						required>
+				</div>
+
+				<label for="email" class="col-sm-2 col-form-label">Email</label>
+				<div class="col-sm-4">
+					<input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<label for="currency" class="col-sm-2 col-form-label">Currency</label>
+				<div class="col-sm-4">
+					<select class="form-select" id="currency" name="currency">
+						<% ["USD", "EUR", "GBP", "JPY", "CAD", "AUD"].forEach(c => { %>
+						<option value="<%= c %>" <%= user.currency === c ? "selected" : "" %>><%= c %></option>
+						<% }) %>
+					</select>
+				</div>
+			</div>
+
+			<div class="text-end">
+				<span class="pe-1">Updating info requires re-login</span>
+				<button type="submit" class="btn btn-primary me-2">Update</button>
+				<a href="/account" class="btn btn-secondary">Cancel</a>
+			</div>
+		</form>
+	</div>
+
+	<!-- Change Password Section -->
+	<div class="card p-4 mb-4 shadow-sm">
+		<h5 class="mb-3">Change Password</h5>
+		<form action="/account/change-password" method="POST">
+			<div class="mb-3">
+				<label for="currentPassword" class="form-label">Current Password</label>
+				<input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+			</div>
+			<div class="mb-3">
+				<label for="newPassword" class="form-label">New Password</label>
+				<input type="password" class="form-control" id="newPassword" name="newPassword" required>
+				<% if (typeof success !== 'undefined') { %>
+				<div class="text-success"><%= success %></div>
+				<% } %>
+				<% if (typeof error !== 'undefined') { %>
+				<div class="text-danger"><%= error %></div>
+				<% } %>
+			</div>
+			<div class="text-end">
+				<button type="submit" class="btn btn-primary">Change Password</button>
+			</div>
+		</form>
+	</div>
+
+	<!-- Delete Account Section -->
+	<div class="card p-4 mb-4 shadow-sm border-danger">
+		<h5 class="mb-3 text-danger">Delete Account</h5>
+		<p class="mb-3">Warning: This action is permanent and cannot be undone.</p>
+		<form action="/account/delete" method="POST">
+			<button type="submit" class="btn btn-danger">Delete Account</button>
+		</form>
+	</div>
+</div>

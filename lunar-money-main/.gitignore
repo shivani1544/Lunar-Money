@@ -1,0 +1,5 @@
+#don't track actual node module files
+node_modules/
+
+#keep .env files local
+.env

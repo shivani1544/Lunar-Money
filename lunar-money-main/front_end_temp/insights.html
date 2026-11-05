@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insights - Lunar Money</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="d-flex flex-grow-1">
+    <div id="sidebar"></div>
+    <div class="flex-grow-1 d-flex flex-column">
+      <div id="header"></div>
+
+      <div class="container py-5">
+        <h3 class="mb-3">Insights</h3>
+        <p>Reports and financial tips based on your activity.</p>
+
+        <!-- Spending Report -->
+        <div class="card p-4 mt-4">
+          <h5>Spending Report</h5>
+
+          <!-- Weekly/Monthly Dropdown + Navigation -->
+          <div class="d-flex justify-content-center align-items-center mb-3 gap-3">
+            <button class="btn btn-outline-secondary" id="prevPeriod">←</button>
+
+            <div class="d-flex flex-column align-items-center">
+              <label class="form-label mb-1">View By:</label>
+              <select id="reportType" class="form-select text-center" style="width:150px;">
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+              <div id="periodLabel" class="fw-bold mt-2"></div>
+            </div>
+
+            <button class="btn btn-outline-secondary" id="nextPeriod">→</button>
+          </div>
+
+        </div>
+
+        <!-- Amart Suggestions -->
+        <div class="card p-4 mt-4">
+          <h5>Spending Suggestions</h5>
+          <div id="suggestions"></div>
+        </div>
+
+        <!-- Net Worth -->
+        <div class="card p-4 mt-4">
+          <h5>Net Worth</h5>
+          <div id="netWorth"></div>
+        </div>
+
+      </div>
+
+      <!-- Scripts -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="header_script.js"></script>
+      <script src="darkmode_script.js"></script>
+
+      <script>
+        /* This is a temp way to load data for the consts used in functions below */
+        const transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+        const incomes = JSON.parse(localStorage.getItem("incomes")) || [];
+
+        /* Date Helpers */
+        let currentWeekOffset = 0;
+        let currentMonthOffset = 0;
+
+        function getWeekRange(offset = 0) {
+          const now = new Date();
+          now.setDate(now.getDate() + offset * 7);
+
+          const start = new Date(now);
+          start.setDate(start.getDate() - start.getDay());
+
+          const end = new Date(start);
+          end.setDate(start.getDate() + 6);
+
+          return { start, end };
+        }
+
+        function getMonthRange(offset = 0) {
+          const now = new Date();
+          now.setMonth(now.getMonth() + offset);
+
+          const start = new Date(now.getFullYear(), now.getMonth(), 1);
+          const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+          return { start, end };
+        }
+
+        /* Filter the transactins by date range */
+        function filterByRange(start, end) {
+          return transactions.filter(t => {
+            const d = new Date(t.date);
+            return d >= start && d <= end;
+          });
+        }
+
+        /* Grouop the transactions by category.. not sure if we need tag? */
+        function groupByCategory(list) {
+          const map = {};
+          list.forEach(t => {
+            if (!map[t.category]) map[t.category] = 0;
+            map[t.category] += Number(t.amount);
+          });
+          return map;
+        }
+
+        /* Update Spending Report -- this is to fill out the spending report */
+        function updateSpendingReport() {
+          const type = document.getElementById("reportType").value;
+
+          let range, filtered, label;
+
+          if (type === "weekly") {
+            range = getWeekRange(currentWeekOffset);
+            filtered = filterByRange(range.start, range.end);
+
+            label = `Week of ${range.start.toDateString()} - ${range.end.toDateString()}`;
+
+          } else {
+            range = getMonthRange(currentMonthOffset);
+            filtered = filterByRange(range.start, range.end);
+
+            label = `${range.start.toLocaleString('default', { month: 'long' })} ${range.start.getFullYear()}`;
+          }
+
+          document.getElementById("periodLabel").innerText = label;
+
+          const grouped = groupByCategory(filtered);
+
+          let html = "";
+
+          if (Object.keys(grouped).length === 0) {
+            html = "<p>No spending recorded.</p>";
+          } else {
+            for (const cat in grouped) {
+              html += `<p><strong>${cat}:</strong> $${grouped[cat].toFixed(2)}</p>`;
+            }
+          }
+
+          document.getElementById("spendingReport").innerHTML = html;
+
+          updateSuggestions(grouped);
+        }
+
+        /* Smart Suggestions- show the highest spending and lowest spending categories. Also entered an option for takeout spending */
+        function updateSuggestions(grouped) {
+          const cats = Object.entries(grouped);
+
+          if (cats.length === 0) {
+            document.getElementById("suggestions").innerHTML =
+              "<p>No spending yet — keep tracking your expenses!</p>";
+            return;
+          }
+
+          cats.sort((a, b) => b[1] - a[1]);
+
+          const highest = cats[0];
+          const lowest = cats[cats.length - 1];
+
+          let suggestion = `
+            <p><strong>Highest Spending:</strong> ${highest[0]} ($${highest[1].toFixed(2)})</p>
+            <p><strong>Lowest Spending:</strong> ${lowest[0]} ($${lowest[1].toFixed(2)})</p>
+          `;
+
+          if (highest[0].toLowerCase().includes("food") ||
+              highest[0].toLowerCase().includes("dining") ||
+              highest[0].toLowerCase().includes("restaurant")) {
+            suggestion += `<p>Try reducing takeout spending — cutting $20/week saves over $1,000 per year!</p>`;
+          } else {
+            suggestion += `<p>Review your highest spending category to find potential savings.</p>`;
+          }
+
+          document.getElementById("suggestions").innerHTML = suggestion;
+        }
+
+        /* Net Worth -- shows the total income, total expenses, and then the networth */
+        function updateNetWorth() {
+          const totalIncome = incomes.reduce((sum, i) => sum + Number(i.amount), 0);
+
+          const totalExpenses = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+
+          const net = totalIncome - totalExpenses;
+
+          document.getElementById("netWorth").innerHTML = `
+            <p><strong>Total Income:</strong> $${totalIncome.toFixed(2)}</p>
+            <p><strong>Total Expenses:</strong> $${totalExpenses.toFixed(2)}</p>
+            <h4 class="mt-2">Net Worth: $${net.toFixed(2)}</h4>
+          `;
+        }
+
+        /* Event Listeners */
+        document.getElementById("reportType").addEventListener("change", () => {
+          currentWeekOffset = 0;
+          currentMonthOffset = 0;
+          updateSpendingReport();
+        });
+
+        document.getElementById("prevPeriod").addEventListener("click", () => {
+          if (document.getElementById("reportType").value === "weekly") {
+            currentWeekOffset--;
+          } else {
+            currentMonthOffset--;
+          }
+          updateSpendingReport();
+        });
+
+        document.getElementById("nextPeriod").addEventListener("click", () => {
+          if (document.getElementById("reportType").value === "weekly") {
+            currentWeekOffset++;
+          } else {
+            currentMonthOffset++;
+          }
+          updateSpendingReport();
+        });
+
+        /* Initial Load for report and net worth*/
+        updateSpendingReport();
+        updateNetWorth();
+
+      </script>
+    </div>
+  </div>
+</body>
+</html>

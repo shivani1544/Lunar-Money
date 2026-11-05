@@ -1,0 +1,302 @@
+<style>
+	/* Progress Bars */
+	.progress {
+	  background-color: #333;
+	  height: 18px;
+	  border-radius: 8px;
+	}
+  
+	.progress-bar {
+	  background-color: #79e69ab5;
+	  color: #e0e1dd;
+	  font-weight: 600;
+	  transition: width 0.3s ease;
+	}
+  
+	.progress-bar.bg-success {
+	  background-color: #28a745;
+	  color: #fff;
+	}
+  
+	/* Alert messages */
+	.goal-alert {
+	  background-color: #28a745;
+	  color: #fff;
+	  padding: 6px 12px;
+	  border-radius: 6px;
+	  font-weight: 600;
+	  margin-top: 8px;
+	  text-align: center;
+	}
+  
+	.btn-custom-primary {
+	  background-color: #333;
+	  color: #e0e1dd;
+	  border: none;
+	}
+  
+	.btn-custom-primary:hover {
+	  background-color: #79e69ab5;
+	  color: #0d1b2a;
+	}
+  </style>
+  
+  <div class="container py-5">
+	<h3>Financial Goals</h3>
+	<p>Set and track long-term savings milestones.</p>
+  
+	<!-- Add Goal Form -->
+	<div class="card p-4 mt-4">
+	  <h5>Add Goal</h5>
+	  <input id="goalTitle" type="text" class="form-control mb-2" placeholder="Goal Title (e.g., Emergency Fund)" />
+	  <input id="goalTarget" type="number" class="form-control mb-2" placeholder="Target Amount ($)" />
+	  <input id="currentlySaved" type="number" class="form-control mb-2" placeholder="Currently Saved ($)" />
+	  <input id="goalCategory" type="text" class="form-control mb-2" placeholder="Category (optional)" />
+	  <input id="goalDueDate" type="date" class="form-control mb-2" />
+	  <button id="saveGoalBtn" class="btn btn-primary">Save Goal</button>
+	</div>
+  
+	<!-- Goals List -->
+	<div class="card p-4 mt-4">
+	  <h5>Goals In Progress</h5>
+	  <div id="goalsList" class="d-flex flex-column gap-3"></div>
+	</div>
+  </div>
+  
+  <!-- Edit Modal -->
+  <div class="modal fade" id="goalEditModal" tabindex="-1">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title">Edit Goal</h5>
+		  <button class="btn-close" data-bs-dismiss="modal"></button>
+		</div>
+  
+		<div class="modal-body">
+		  <label class="form-label">Goal Title</label>
+		  <input id="editGoalTitle" type="text" class="form-control mb-3">
+  
+		  <label class="form-label">Target Amount ($)</label>
+		  <input id="editGoalTarget" type="number" class="form-control mb-3">
+  
+		  <label class="form-label">Currently Saved ($)</label>
+		  <input id="editGoalSaved" type="number" class="form-control mb-3">
+  
+		  <label class="form-label">Category</label>
+		  <input id="editGoalCategory" type="text" class="form-control mb-3">
+  
+		  <label class="form-label">Due Date</label>
+		  <input id="editGoalDueDate" type="date" class="form-control mb-3">
+		</div>
+  
+		<div class="modal-footer">
+		  <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+		  <button class="btn btn-custom-primary" id="saveGoalEditBtn">Save Changes</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+  
+  <script>
+	const goalTitle = document.getElementById("goalTitle");
+	const goalTarget = document.getElementById("goalTarget");
+	const currentlySaved = document.getElementById("currentlySaved");
+	const goalCategory = document.getElementById("goalCategory");
+	const goalDueDate = document.getElementById("goalDueDate");
+	const saveGoalBtn = document.getElementById("saveGoalBtn");
+	const goalsList = document.getElementById("goalsList");
+  
+	let goals = [];
+	let editIndex = null;
+  
+	// Load goals on page load
+	document.addEventListener("DOMContentLoaded", async () => {
+	  await loadGoals();
+	});
+  
+	// Load goals from API
+	async function loadGoals() {
+	  try {
+		const response = await fetch("/api/goals");
+		if (response.ok) {
+		  goals = await response.json();
+		  renderGoals();
+		}
+	  } catch (e) {
+		console.error("Failed to load goals:", e);
+	  }
+	}
+  
+	// Save new goal
+	saveGoalBtn.addEventListener("click", async () => {
+	  const title = goalTitle.value.trim();
+	  const target = Number(goalTarget.value.trim());
+	  const saved = Number(currentlySaved.value.trim()) || 0;
+	  const category = goalCategory.value.trim();
+	  const dueDate = goalDueDate.value;
+  
+	  if (!title || !target || target <= 0) {
+		alert("Please enter a valid title and target amount.");
+		return;
+	  }
+  
+	  try {
+		const response = await fetch("/api/goals", {
+		  method: "POST",
+		  headers: { "Content-Type": "application/json" },
+		  body: JSON.stringify({
+			name: title,
+			targetAmount: target,
+			currentlySaved: saved,
+			category,
+			dueDate: dueDate || null
+		  })
+		});
+  
+		if (response.ok) {
+		  goalTitle.value = "";
+		  goalTarget.value = "";
+		  currentlySaved.value = "";
+		  goalCategory.value = "";
+		  goalDueDate.value = "";
+		  await loadGoals();
+		} else {
+		  alert("Failed to save goal");
+		}
+	  } catch (e) {
+		console.error("Error saving goal:", e);
+		alert("Failed to save goal");
+	  }
+	});
+  
+	// Render goals
+	function renderGoals() {
+	  goalsList.innerHTML = "";
+  
+	  if (goals.length === 0) {
+		goalsList.innerHTML = '<p class="text-muted">No goals created yet. Create one above to get started!</p>';
+		return;
+	  }
+  
+	  goals.forEach((goal, index) => {
+		const progress = Math.min((goal.currentlySaved / goal.targetAmount) * 100, 100);
+		const progressRounded = Math.floor(progress);
+		const alertNeeded = progressRounded >= 100;
+  
+		const wrapper = document.createElement("div");
+		wrapper.className = "p-3 border rounded";
+  
+		const dueDateStr = goal.dueDate ? new Date(goal.dueDate).toLocaleDateString() : "No due date";
+  
+		wrapper.innerHTML = `
+		  <div class="d-flex justify-content-between align-items-center mb-2">
+			<strong>${goal.name}</strong>
+			<div>
+			  <button class="btn btn-sm btn-outline-secondary me-1 edit-goal" data-index="${index}">Edit</button>
+			  <button class="btn btn-sm btn-outline-danger delete-goal" data-id="${goal._id}">Delete</button>
+			</div>
+		  </div>
+  
+		  <div class="mb-2">
+			<span><strong>Saved:</strong> $${goal.currentlySaved.toFixed(2)}</span> <br> 
+			<span><strong>Target:</strong> $${goal.targetAmount.toFixed(2)}</span> <br>
+			<span><strong>Remaining:</strong> $${Math.max(0, goal.targetAmount - goal.currentlySaved).toFixed(2)}</span> <br>
+			${goal.category ? `<span><strong>Category:</strong> ${goal.category}</span><br>` : ""}
+			<span><strong>Due Date:</strong> ${dueDateStr}</span>
+		  </div>
+  
+		  <div class="progress mb-2">
+			<div class="progress-bar ${alertNeeded ? 'bg-success' : ''}" 
+				 role="progressbar"
+				 style="width:${progressRounded}%;">
+			  ${progressRounded}%
+			</div>
+		  </div>
+  
+		  ${alertNeeded ? `<div class="goal-alert">🎉 Goal reached!</div>` : ""}
+		`;
+  
+		goalsList.appendChild(wrapper);
+	  });
+  
+	  attachGoalButtons();
+	}
+  
+	// Attach event listeners
+	function attachGoalButtons() {
+	  document.querySelectorAll(".delete-goal").forEach(btn => {
+		btn.addEventListener("click", async (e) => {
+		  const id = e.target.dataset.id;
+		  if (confirm("Delete this goal?")) {
+			await deleteGoal(id);
+		  }
+		});
+	  });
+  
+	  document.querySelectorAll(".edit-goal").forEach(btn => {
+		btn.addEventListener("click", (e) => {
+		  const index = parseInt(e.target.dataset.index);
+		  openEditModal(index);
+		});
+	  });
+	}
+  
+	// Delete goal
+	async function deleteGoal(id) {
+	  try {
+		const response = await fetch(`/api/goals/${id}`, { method: "DELETE" });
+		if (response.ok) {
+		  await loadGoals();
+		} else {
+		  alert("Failed to delete goal");
+		}
+	  } catch (e) {
+		console.error("Error deleting goal:", e);
+		alert("Failed to delete goal");
+	  }
+	}
+  
+	// Open edit modal
+	function openEditModal(index) {
+	  editIndex = index;
+	  const goal = goals[index];
+	  
+	  document.getElementById("editGoalTitle").value = goal.name;
+	  document.getElementById("editGoalTarget").value = goal.targetAmount;
+	  document.getElementById("editGoalSaved").value = goal.currentlySaved;
+	  document.getElementById("editGoalCategory").value = goal.category || "";
+	  document.getElementById("editGoalDueDate").value = goal.dueDate ? goal.dueDate.split('T')[0] : "";
+  
+	  const modal = new bootstrap.Modal(document.getElementById("goalEditModal"));
+	  modal.show();
+	}
+  
+	// Save edits
+	document.getElementById("saveGoalEditBtn").addEventListener("click", async () => {
+	  const goal = goals[editIndex];
+  
+	  try {
+		const response = await fetch(`/api/goals/${goal._id}`, {
+		  method: "PUT",
+		  headers: { "Content-Type": "application/json" },
+		  body: JSON.stringify({
+			name: document.getElementById("editGoalTitle").value,
+			targetAmount: Number(document.getElementById("editGoalTarget").value),
+			currentlySaved: Number(document.getElementById("editGoalSaved").value),
+			category: document.getElementById("editGoalCategory").value,
+			dueDate: document.getElementById("editGoalDueDate").value || null
+		  })
+		});
+  
+		if (response.ok) {
+		  bootstrap.Modal.getInstance(document.getElementById("goalEditModal")).hide();
+		  await loadGoals();
+		} else {
+		  alert("Failed to update goal");
+		}
+	  } catch (e) {
+		console.error("Error updating goal:", e);
+		alert("Failed to update goal");
+	  }
+	});
+  </script>

@@ -1,0 +1,237 @@
+<% title = "Lunar Money - Transactions" %>
+
+<div class="d-flex flex-grow-1">
+	<!-- Sidebar -->
+	<div id="sidebar"></div>
+	<!-- Main Content -->
+	<div class="flex-grow-1 d-flex flex-column">
+		<!-- Header -->
+		<div id="header">
+
+			<div class="d-flex justify-content-between align-items-center py-3">
+				<span class="fs-3 me-1">Transactions </span><span class="mt-1 me-auto"> - See the most recent spending
+					and income activity.</span>
+
+				<!-- Search Toggle Button -->
+				<button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+					data-bs-target="#searchCollapse">
+					Search
+				</button>
+			</div>
+			<div class="collapse <%= isSearching ? 'show' : '' %>" id="searchCollapse">
+				<div class="card card-body mb-3">
+					<form id="searchForm" action="/transactions/search" method="GET">
+						<div class="row g-3 align-items-center">
+							<div class="col-md-4">
+								<input type="text" class="form-control" id="search-name" name="name"
+									placeholder="Transaction name" value="<%= searchParams.name || '' %>">
+							</div>
+							<div class="col-md-4">
+								<input type="date" class="form-control" id="search-date" name="date"
+									value="<%= searchParams.date || '' %>">
+							</div>
+							<div class="col-md-4">
+								<input type="text" class="form-control" id="search-tags" name="tag" placeholder="Tag"
+									value="<%= searchParams.tag || '' %>">
+							</div>
+						</div>
+						<div class="mt-2 text-end">
+							<button type="submit" class="btn btn-primary btn-sm">Search</button>
+							<button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse"
+								data-bs-target="#searchCollapse">Close</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="card p-4 mt-4 shadow-sm">
+			<div class="card-header d-flex justify-content-between align-items-center">
+
+				<% if (isSearching){ %>
+				<h5 class="text-info d-flex align-items-center mb-0">
+					<a href="/transactions" class="btn-close me-2"></a>
+					Search Results
+				</h5>
+				<% } else { %>
+				<h5 class="mb-0">Recent Transactions</h5>
+				<% } %>
+				<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newEntryModal">Add
+					Transaction</button>
+			</div>
+			<div class="mb-3 card-body">
+				<div class="table-responsive">
+					<% if(currentUser){ %>
+					<table class="table custom-table-striped table-bordered align-middle table-sm">
+						<thead class="custom-table-striped" id="custom-table-header">
+							<tr>
+								<th>Date</th>
+								<th>Transaction Name</th>
+								<th>Tags</th>
+								<th>Amount</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% entries.forEach(entry => {
+									const tagsCsv = entry.tags.join(", ");
+								%>
+							<tr class="entry-row" data-entry-id="<%= entry._id %>" data-entry-name="<%= entry.name %>"
+								data-entry-amount="<%= entry.amount %>" data-entry-date="<%= entry.date %>"
+								data-entry-tags="<%= tagsCsv %>">
+
+								<% const [y, m, d] = entry.date.split("-")%>
+								<% reorderedDate = `${m}/${d}/${y}` %>
+								<td><%= reorderedDate %></td>
+								<td><%= entry.name %></td>
+								<td class="text-truncate" style="max-width: 200px;">
+									<%= tagsCsv.length > 25 ? (tagsCsv.slice(0,25) + '...') : tagsCsv %></td>
+								<td class="<%= entry.amount >= 0 ? "text-success" : "text-danger" %>">
+									<%= entry.amount.toLocaleString("en-US", {style: "currency", currency: "USD"}) %>
+								</td>
+							</tr>
+							<% }) %>
+						</tbody>
+					</table>
+					<% } %>
+					<% if (entries.length === 0) { %>
+					<p class="fs-5 fst-italic">No transactions yet.</p>
+					<% } %>
+				</div>
+			</div>
+			<!-- Add Transaction Modal -->
+			<div class="modal fade" id="newEntryModal" tabindex="-1">
+				<div class="modal-dialog">
+					<form class="modal-content" action="/transactions" method="POST">
+
+						<div class="modal-header">
+							<h5 class="modal-title">Add Transaction</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+						</div>
+
+						<div class="modal-body">
+
+
+							<div class="row mb-3 align-items-center">
+								<label class="col-sm-4 col-form-label" for="new-date">Date</label>
+								<div class="col-sm-8">
+									<input id="new-date" name="date" type="date" class="form-control" required>
+								</div>
+							</div>
+
+							<div class="row mb-3 align-items-center">
+								<label class="col-sm-4 col-form-label" for="new-name">Name</label>
+								<div class="col-sm-8">
+									<input id="new-name" name="name" type="text" class="form-control">
+								</div>
+							</div>
+
+							<div class="row mb-3 align-items-center">
+								<label class="col-sm-4 col-form-label" for="new-tags">Tags</label>
+								<div class="col-sm-8">
+									<input id="new-tags" name="tag" type="text" class="form-control"
+										placeholder="e.g. food, groceries">
+								</div>
+							</div>
+
+							<div class="row mb-3 align-items-center position-relative">
+								<label class="col-sm-4 col-form-label" for="new-amount">Amount</label>
+
+								<div class="col-sm-8 d-flex gap-2">
+									<input id="new-amount" name="amount" type="number" step="0.01" class="form-control"
+										required>
+
+									<!-- Toggle button -->
+									<button type="button" id="new-amount-type-toggle"
+										class="btn btn-outline-success btn-sm">
+										Income
+									</button>
+								</div>
+
+							</div>
+
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+							<button type="submit" class="btn btn-primary">Add Transaction</button>
+						</div>
+
+					</form>
+				</div>
+			</div>
+
+			<!-- new -->
+			<div class="modal fade" id="editEntryModal" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+
+						<!-- DELETE FORM (top-right) -->
+						<form id="deleteEntryForm" method="POST">
+							<input type="hidden" name="_method" value="DELETE" />
+							<div class="modal-header d-flex align-items-center justify-content-between">
+								<h5 class="modal-title">Edit Transaction</h5>
+								<button type="submit" class="btn btn-danger btn-sm">
+									Delete
+								</button>
+							</div>
+						</form>
+
+						<!-- EDIT FORM -->
+						<form id="editEntryForm" method="POST">
+
+							<div class="modal-body">
+								<input type="hidden" id="edit-entry-id" name="id" />
+
+								<div class="row mb-3 align-items-center">
+									<label for="edit-date" class="col-sm-4 col-form-label">Date</label>
+									<div class="col-sm-8">
+										<input id="edit-date" name="date" type="date" class="form-control" required />
+									</div>
+								</div>
+
+								<div class="row mb-1 align-items-center">
+									<label for="edit-name" class="col-sm-4 col-form-label">Name</label>
+									<div class="col-sm-8">
+										<input id="edit-name" name="name" type="text" class="form-control" />
+									</div>
+								</div>
+
+								<div class="row mb-1 align-items-center">
+									<label for="edit-tags" class="col-sm-4 col-form-label">Tags (comma
+										separated)</label>
+									<div class="col-sm-8">
+										<input id="edit-tags" name="tag" type="text" class="form-control" />
+									</div>
+								</div>
+								<div class="row mb-3 align-items-center position-relative">
+									<label class="col-sm-4 col-form-label" for="new-amount">Amount</label>
+
+									<div class="col-sm-8 d-flex gap-2">
+										<input id="edit-amount" name="amount" type="number" step="0.01"
+											class="form-control" required>
+
+										<!-- Toggle button -->
+										<button type="button" id="edit-amount-type-toggle"
+											class="btn btn-outline-success btn-sm">
+											Income
+										</button>
+									</div>
+
+								</div>
+
+							</div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+								<button type="submit" class="btn btn-primary">Save changes</button>
+							</div>
+
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+</div>
+<script src="/transactionModals.js"></script>

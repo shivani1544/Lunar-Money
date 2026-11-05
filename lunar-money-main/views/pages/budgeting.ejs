@@ -1,0 +1,74 @@
+<div class="container py-5">
+	<h3>Budget Management</h3>
+	<p>Set spending limits and track your budget across categories.</p>
+
+	<!-- Add Budget Form -->
+	<div class="card p-4 mt-4">
+		<h5>Create New Budget</h5>
+		<div class="row">
+			<div class="col-md-6 mb-3">
+				<label for="categoryType" class="form-label">Category (tag)</label>
+				<input list="existingTags" id="categoryType" class="form-control" type="text"
+					placeholder="Enter or choose a category">
+				<datalist id="existingTags"></datalist>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label for="budgetPeriod" class="form-label">Time Frame</label>
+				<select id="budgetPeriod" class="form-select">
+					<option value="monthly">Monthly</option>
+					<option value="weekly">Weekly</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 mb-3">
+				<label for="totalBudget" class="form-label">Budget Amount ($)</label>
+				<input type="number" id="totalBudget" class="form-control" value="500.00" />
+			</div>
+			<div class="col-md-6 mb-3">
+				<label for="alertThreshold" class="form-label">Alert Threshold (%)</label>
+				<input type="number" id="alertThreshold" class="form-control" placeholder="75" value="75" min="1"
+					max="100" />
+			</div>
+		</div>
+		<button id="saveBudget" class="btn btn-primary">Create Budget</button>
+	</div>
+
+	<!-- Active Budgets -->
+	<div class="card p-4 mt-4">
+		<h5>Active Budgets</h5>
+		<div id="categoryContainer"></div>
+	</div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Edit Budget</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body">
+				<label class="form-label">Budget Amount ($)</label>
+				<input id="editAmount" type="number" class="form-control mb-3">
+
+				<label class="form-label">Spent ($)</label>
+				<input id="editSpent" type="number" class="form-control mb-3" disabled>
+
+				<label class="form-label">Alert Threshold (%)</label>
+				<input id="editThreshold" type="number" class="form-control mb-3" min="1" max="100">
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button class="btn btn-primary" id="saveEditBtn">Save Changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+
+</style>
+
+<script src="/budgetFunctionality.js"></script>

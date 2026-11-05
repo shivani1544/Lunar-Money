@@ -1,0 +1,38 @@
+<div class="header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+	<div class="d-flex align-items-center">
+		<a href="/" class="text-reset text-decoration-none d-flex align-items-center">
+			<img src="/LM_icon.svg" height="35" width="35" alt="Lunar Money logo" />
+			<span class="ps-2">Lunar Money</span>
+		</a>
+	</div>
+
+	<div class="d-flex align-items-center">
+		<!-- Notifications dropdown -->
+		<div class="dropdown me-3">
+			<button class="btn btn-outline-primary btn-sm position-relative" type="button" id="notificationDropdown"
+				data-bs-toggle="dropdown" aria-expanded="false">
+				Notifications
+				<span id="notificationBadge"
+					class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+					style="display: none;">0</span>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown"
+				style="width: 350px; max-height: 400px; overflow-y: auto;" id="notificationsContainer">
+				<li class="d-flex justify-content-between align-items-center mb-2">
+
+					<button id="markAllReadBtn" class="btn btn-sm btn-link p-0">Mark all as read</button>
+				</li>
+				<li>
+					<hr class="dropdown-divider">
+				</li>
+			</ul>
+		</div>
+
+		<a href="/account" class="btn btn-outline-secondary btn-sm d-flex align-items-center">
+			<span class="ps-1"><%= currentUser.username %> ⚙️</span>
+		</a>
+
+		<a href="/logout" class="btn btn-outline-danger btn-sm ms-3">Logout</a>
+	</div>
+</div>
+<script src="/notificationFunctionality.js"></script>

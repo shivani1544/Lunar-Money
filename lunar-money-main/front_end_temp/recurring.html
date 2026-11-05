@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Recurring Income & Expenses</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="d-flex flex-grow-1">
+    <div id="sidebar"></div>
+
+    <div class="flex-grow-1 d-flex flex-column">
+      <div id="header"></div>
+
+      <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="m-0">Recurring Income & Expenses</h3>
+          <span class="text-muted">Manage scheduled recurring items</span>
+        </div>
+
+        <!-- ========== Scheduled Income Card ========== -->
+        <div class="card p-0 mb-4 shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Scheduled Income</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIncomeModal">
+              Add Income
+            </button>
+          </div>
+
+          <div class="mb-3 card-body">
+            <div class="table-responsive">
+              <table class="table custom-table-striped table-bordered align-middle table-sm">
+                <thead class="custom-table-striped">
+                  <tr>
+                    <th>Date</th>
+                    <th>Source</th>
+                    <th>Category / Frequency</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="scheduled-income-list">
+                  <tr><td colspan="4" class="text-muted text-center p-3">No scheduled income yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== Scheduled Expenses Card ========== -->
+        <div class="card p-0 mb-4 shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Scheduled Expenses</h5>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+              Add Expense
+            </button>
+          </div>
+
+          <div class="mb-3 card-body">
+            <div class="table-responsive">
+              <table class="table custom-table-striped table-bordered align-middle table-sm">
+                <thead class="custom-table-striped" id="custom-table-header">
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Frequency</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="scheduled-expense-list">
+                  <tr><td colspan="4" class="text-muted text-center p-3">No scheduled expenses yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Add Income Modal (matches Transactions modal layout) ================= -->
+  <div class="modal fade" id="addIncomeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form class="modal-content" id="addIncomeForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Income</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-3 align-items-center">
+            <label for="add-income-date" class="col-sm-4 col-form-label">Start Date</label>
+            <div class="col-sm-8">
+              <input id="add-income-date" name="date" type="date" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-income-name" class="col-sm-4 col-form-label">Source</label>
+            <div class="col-sm-8">
+              <input id="add-income-name" name="name" type="text" class="form-control" placeholder="e.g., Employer">
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-income-category" class="col-sm-4 col-form-label">Category</label>
+            <div class="col-sm-8">
+              <select id="add-income-category" name="category" class="form-select">
+                <option>Salary</option>
+                <option>Freelance</option>
+                <option>Investments</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-income-frequency" class="col-sm-4 col-form-label">Repeats</label>
+            <div class="col-sm-8">
+              <select id="add-income-frequency" name="frequency" class="form-select">
+                <option>Weekly</option>
+                <option>Bi-Weekly</option>
+                <option>Monthly</option>
+                <option>Quarterly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-income-amount" class="col-sm-4 col-form-label">Amount</label>
+            <div class="col-sm-8">
+              <input id="add-income-amount" name="amount" type="number" step="0.01" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="submit-add-income" type="button" class="btn btn-primary">Add Income</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= Add Expense Modal ================= -->
+  <div class="modal fade" id="addExpenseModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form class="modal-content" id="addExpenseForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Expense</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-3 align-items-center">
+            <label for="add-expense-date" class="col-sm-4 col-form-label">Start Date</label>
+            <div class="col-sm-8">
+              <input id="add-expense-date" name="date" type="date" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-expense-name" class="col-sm-4 col-form-label">Name</label>
+            <div class="col-sm-8">
+              <input id="add-expense-name" name="name" type="text" class="form-control" placeholder="e.g., Rent">
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-expense-frequency" class="col-sm-4 col-form-label">Repeats</label>
+            <div class="col-sm-8">
+              <select id="add-expense-frequency" name="frequency" class="form-select">
+                <option>Weekly</option>
+                <option>Bi-Weekly</option>
+                <option>Monthly</option>
+                <option>Quarterly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="add-expense-amount" class="col-sm-4 col-form-label">Amount</label>
+            <div class="col-sm-8">
+              <input id="add-expense-amount" name="amount" type="number" step="0.01" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="submit-add-expense" type="button" class="btn btn-primary">Add Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= Edit Income Modal (delete top-right like transactions) ================= -->
+  <div class="modal fade" id="editIncomeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Delete Button (top-right) -->
+        <form id="deleteIncomeForm" class="mb-0">
+          <div class="modal-header d-flex align-items-center justify-content-between">
+            <h5 class="modal-title">Edit Income</h5>
+            <button type="button" id="delete-income-btn" class="btn btn-danger btn-sm">Delete</button>
+          </div>
+        </form>
+
+        <!-- Edit FORM -->
+        <form class="modal-body p-4" id="editIncomeForm">
+          <input type="hidden" id="edit-income-row-id">
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-income-date" class="col-sm-4 col-form-label">Date</label>
+            <div class="col-sm-8"><input id="edit-income-date" type="date" class="form-control"></div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-income-name" class="col-sm-4 col-form-label">Source</label>
+            <div class="col-sm-8"><input id="edit-income-name" type="text" class="form-control"></div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-income-category" class="col-sm-4 col-form-label">Category</label>
+            <div class="col-sm-8">
+              <select id="edit-income-category" class="form-select">
+                <option>Salary</option>
+                <option>Freelance</option>
+                <option>Investments</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-income-frequency" class="col-sm-4 col-form-label">Repeats</label>
+            <div class="col-sm-8">
+              <select id="edit-income-frequency" class="form-select">
+                <option>Weekly</option>
+                <option>Bi-Weekly</option>
+                <option>Monthly</option>
+                <option>Quarterly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-0 align-items-center">
+            <label for="edit-income-amount" class="col-sm-4 col-form-label">Amount</label>
+            <div class="col-sm-8">
+              <input id="edit-income-amount" type="number" step="0.01" class="form-control">
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="save-income-btn" type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Edit Expense Modal (delete top-right) ================= -->
+  <div class="modal fade" id="editExpenseModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Delete Button (top-right) -->
+        <form id="deleteExpenseForm" class="mb-0">
+          <div class="modal-header d-flex align-items-center justify-content-between">
+            <h5 class="modal-title">Edit Expense</h5>
+            <button type="button" id="delete-expense-btn" class="btn btn-danger btn-sm">Delete</button>
+          </div>
+        </form>
+
+        <!-- Edit FORM -->
+        <form class="modal-body p-4" id="editExpenseForm">
+          <input type="hidden" id="edit-expense-row-id">
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-expense-date" class="col-sm-4 col-form-label">Date</label>
+            <div class="col-sm-8"><input id="edit-expense-date" type="date" class="form-control"></div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-expense-name" class="col-sm-4 col-form-label">Name</label>
+            <div class="col-sm-8"><input id="edit-expense-name" type="text" class="form-control"></div>
+          </div>
+
+          <div class="row mb-3 align-items-center">
+            <label for="edit-expense-frequency" class="col-sm-4 col-form-label">Repeats</label>
+            <div class="col-sm-8">
+              <select id="edit-expense-frequency" class="form-select">
+                <option>Weekly</option>
+                <option>Bi-Weekly</option>
+                <option>Monthly</option>
+                <option>Quarterly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-0 align-items-center">
+            <label for="edit-expense-amount" class="col-sm-4 col-form-label">Amount</label>
+            <div class="col-sm-8">
+              <input id="edit-expense-amount" type="number" step="0.01" class="form-control">
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="save-expense-btn" type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap + JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="header_script.js"></script>
+
+  <script>
+    // Helpers
+    function formatDateToMDY(isoDate) {
+      // isoDate expected 'YYYY-MM-DD'
+      if (!isoDate) return "";
+      const [y, m, d] = isoDate.split("-");
+      return `${m}/${d}/${y}`;
+    }
+
+    function clearTableIfEmpty(tbody) {
+      if (!tbody.querySelector('tr')) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="4" class="text-muted text-center p-3">No items yet.</td>';
+        tbody.appendChild(tr);
+      }
+    }
+
+    /* ---------------- Add Income ---------------- */
+    document.getElementById('submit-add-income').addEventListener('click', () => {
+      const date = document.getElementById('add-income-date').value;
+      const name = document.getElementById('add-income-name').value.trim();
+      const category = document.getElementById('add-income-category').value;
+      const frequency = document.getElementById('add-income-frequency').value;
+      const amountRaw = document.getElementById('add-income-amount').value;
+      if (!date || !name || !amountRaw) return alert('Please complete all fields.');
+
+      const amount = Number(amountRaw).toFixed(2);
+      const tbody = document.getElementById('scheduled-income-list');
+      // remove "No scheduled" row if present
+      if (tbody.querySelector('.text-muted')) tbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.classList.add('entry-row');
+      tr.dataset.type = 'income';
+      tr.dataset.date = date;
+      tr.dataset.name = name;
+      tr.dataset.category = category;
+      tr.dataset.frequency = frequency;
+      tr.dataset.amount = amount;
+
+      tr.innerHTML = `
+        <td>${formatDateToMDY(date)}</td>
+        <td>${name}</td>
+        <td>${category} / ${frequency}</td>
+        <td class="text-success">$${amount}</td>
+      `;
+
+      tr.addEventListener('click', () => openEditIncome(tr));
+      tbody.appendChild(tr);
+
+      // reset & hide modal
+      document.getElementById('addIncomeForm').reset();
+      bootstrap.Modal.getInstance(document.getElementById('addIncomeModal')).hide();
+    });
+
+    /* ---------------- Add Expense ---------------- */
+    document.getElementById('submit-add-expense').addEventListener('click', () => {
+      const date = document.getElementById('add-expense-date').value;
+      const name = document.getElementById('add-expense-name').value.trim();
+      const frequency = document.getElementById('add-expense-frequency').value;
+      const amountRaw = document.getElementById('add-expense-amount').value;
+      if (!date || !name || !amountRaw) return alert('Please complete all fields.');
+
+      const amount = Number(amountRaw).toFixed(2);
+      const tbody = document.getElementById('scheduled-expense-list');
+      if (tbody.querySelector('.text-muted')) tbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.classList.add('entry-row');
+      tr.dataset.type = 'expense';
+      tr.dataset.date = date;
+      tr.dataset.name = name;
+      tr.dataset.frequency = frequency;
+      tr.dataset.amount = amount;
+
+      tr.innerHTML = `
+        <td>${formatDateToMDY(date)}</td>
+        <td>${name}</td>
+        <td>${frequency}</td>
+        <td class="text-danger">$${amount}</td>
+      `;
+
+      tr.addEventListener('click', () => openEditExpense(tr));
+      tbody.appendChild(tr);
+
+      document.getElementById('addExpenseForm').reset();
+      bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+    });
+
+    /* ---------------- Edit Income ---------------- */
+    let activeIncomeRow = null;
+    function openEditIncome(row) {
+      activeIncomeRow = row;
+      document.getElementById('edit-income-row-id').value = ''; // not used but kept for structure
+      document.getElementById('edit-income-date').value = row.dataset.date;
+      document.getElementById('edit-income-name').value = row.dataset.name;
+      document.getElementById('edit-income-category').value = row.dataset.category || 'Salary';
+      document.getElementById('edit-income-frequency').value = row.dataset.frequency || 'Monthly';
+      document.getElementById('edit-income-amount').value = row.dataset.amount;
+      const modal = new bootstrap.Modal(document.getElementById('editIncomeModal'));
+      modal.show();
+    }
+
+    document.getElementById('save-income-btn').addEventListener('click', () => {
+      if (!activeIncomeRow) return;
+      const date = document.getElementById('edit-income-date').value;
+      const name = document.getElementById('edit-income-name').value.trim();
+      const category = document.getElementById('edit-income-category').value;
+      const frequency = document.getElementById('edit-income-frequency').value;
+      const amount = Number(document.getElementById('edit-income-amount').value).toFixed(2);
+      if (!date || !name || !amount) return alert('Please complete all fields.');
+
+      activeIncomeRow.dataset.date = date;
+      activeIncomeRow.dataset.name = name;
+      activeIncomeRow.dataset.category = category;
+      activeIncomeRow.dataset.frequency = frequency;
+      activeIncomeRow.dataset.amount = amount;
+
+      activeIncomeRow.children[0].textContent = formatDateToMDY(date);
+      activeIncomeRow.children[1].textContent = name;
+      activeIncomeRow.children[2].textContent = `${category} / ${frequency}`;
+      activeIncomeRow.children[3].textContent = `$${amount}`;
+      activeIncomeRow.children[3].className = 'text-success';
+
+      bootstrap.Modal.getInstance(document.getElementById('editIncomeModal')).hide();
+    });
+
+    document.getElementById('delete-income-btn').addEventListener('click', () => {
+      if (!activeIncomeRow) return;
+      const tbody = document.getElementById('scheduled-income-list');
+      activeIncomeRow.remove();
+      activeIncomeRow = null;
+      // If empty, add placeholder
+      if (!tbody.querySelector('tr')) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-muted text-center p-3">No scheduled income yet.</td></tr>';
+      }
+      bootstrap.Modal.getInstance(document.getElementById('editIncomeModal')).hide();
+    });
+
+    /* ---------------- Edit Expense ---------------- */
+    let activeExpenseRow = null;
+    function openEditExpense(row) {
+      activeExpenseRow = row;
+      document.getElementById('edit-expense-row-id').value = '';
+      document.getElementById('edit-expense-date').value = row.dataset.date;
+      document.getElementById('edit-expense-name').value = row.dataset.name;
+      document.getElementById('edit-expense-frequency').value = row.dataset.frequency || 'Monthly';
+      document.getElementById('edit-expense-amount').value = row.dataset.amount;
+      const modal = new bootstrap.Modal(document.getElementById('editExpenseModal'));
+      modal.show();
+    }
+
+    document.getElementById('save-expense-btn').addEventListener('click', () => {
+      if (!activeExpenseRow) return;
+      const date = document.getElementById('edit-expense-date').value;
+      const name = document.getElementById('edit-expense-name').value.trim();
+      const frequency = document.getElementById('edit-expense-frequency').value;
+      const amount = Number(document.getElementById('edit-expense-amount').value).toFixed(2);
+      if (!date || !name || !amount) return alert('Please complete all fields.');
+
+      activeExpenseRow.dataset.date = date;
+      activeExpenseRow.dataset.name = name;
+      activeExpenseRow.dataset.frequency = frequency;
+      activeExpenseRow.dataset.amount = amount;
+
+      activeExpenseRow.children[0].textContent = formatDateToMDY(date);
+      activeExpenseRow.children[1].textContent = name;
+      activeExpenseRow.children[2].textContent = frequency;
+      activeExpenseRow.children[3].textContent = `$${amount}`;
+      activeExpenseRow.children[3].className = 'text-danger';
+
+      bootstrap.Modal.getInstance(document.getElementById('editExpenseModal')).hide();
+    });
+
+    document.getElementById('delete-expense-btn').addEventListener('click', () => {
+      if (!activeExpenseRow) return;
+      const tbody = document.getElementById('scheduled-expense-list');
+      activeExpenseRow.remove();
+      activeExpenseRow = null;
+      if (!tbody.querySelector('tr')) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-muted text-center p-3">No scheduled expenses yet.</td></tr>';
+      }
+      bootstrap.Modal.getInstance(document.getElementById('editExpenseModal')).hide();
+    });
+
+    // Make clicking existing placeholder rows do nothing
+    document.querySelectorAll('#scheduled-income-list, #scheduled-expense-list').forEach(tbody => {
+      tbody.addEventListener('click', (e) => {
+        // if clicking placeholder row, ignore
+        const tr = e.target.closest('tr');
+        if (!tr || tr.querySelector('.text-muted')) return;
+      });
+    });
+
+  </script>
+</body>
+</html>

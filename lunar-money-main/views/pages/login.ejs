@@ -1,0 +1,59 @@
+<% title = "Lunar Money - Login" %>
+
+<main class="auth-page auth-card card p-4 p-md-5">
+	<div class="text-center mb-4">
+		<div class="auth-logo mb-1">
+			<span><img src="/LM_icon.svg" height="75" width="75" alt="Lunar Money logo test3" /></span>
+			Lunar
+			Money
+			<!--Replace LOGO with LM logo (Blake has)-->
+		</div>
+		<p class="mb-0">Sign in to view your dashboard</p>
+	</div>
+
+	<!-- This will be to toggle between the Login and Register -->
+	<ul class="nav nav-pills nav-justified auth-nav mb-4">
+		<li class="nav-item">
+			<a class="nav-link active" aria-current="page" href="/login">Login</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="/register">Create Account</a>
+		</li>
+	</ul>
+
+	<!-- We can add error messages here in the future if needed-->
+
+	<form action="/login" method="POST">
+		<div class="mb-3">
+			<label for="username" class="form-label">Username</label>
+			<input type="text" class="form-control" id="username" name="username" required autocomplete="username"
+				placeholder="Enter your username here">
+		</div>
+
+		<div class="mb-2">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" class="form-control" id="password" name="password" required
+				autocomplete="current-password" placeholder="Enter your password here">
+		</div>
+
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<div class="form-check auth-muted">
+				<input class="form-check-input" type="checkbox" value="" id="rememberMe">
+				<label class="form-check-label" for="rememberMe">
+					Remember me
+				</label>
+			</div>
+			<!-- Do we need something set up for forgotten password? This is something we can remove later if needed-->
+			<span class="auth-muted">Forgot password?</span>
+		</div>
+		<% if (typeof error !== 'undefined' && error) { %>
+		<div class="text-danger mb-4"><%= error %></div>
+		<% } %>
+		<button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+	</form>
+
+	<p class="text-center auth-muted mt-3 mb-0">
+		New to Lunar Money?
+		<a href="/register">Create an account</a>
+	</p>
+</main>

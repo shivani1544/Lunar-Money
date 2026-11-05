@@ -1,0 +1,205 @@
+<style>
+	.card {
+	  background-color: #1a1a1a;
+	  border: 1px solid #333;
+	}
+	
+	.btn-outline-secondary {
+	  color: #79e69ab5;
+	  border-color: #79e69ab5;
+	}
+	
+	.btn-outline-secondary:hover {
+	  background-color: #79e69ab5;
+	  color: #0d1b2a;
+	}
+  </style>
+  
+  <div class="container py-5">
+	<h3 class="mb-3">Insights</h3>
+	<p>Reports and financial tips based on your activity.</p>
+  
+	<!-- Spending Report -->
+	<div class="card p-4 mt-4">
+	  <h5>Spending Report</h5>
+  
+	  <!-- Weekly/Monthly Dropdown + Navigation -->
+	  <div class="d-flex justify-content-center align-items-center mb-3 gap-3">
+		<button class="btn btn-outline-secondary" id="prevPeriod">←</button>
+  
+		<div class="d-flex flex-column align-items-center">
+		  <label class="form-label mb-1">View By:</label>
+		  <select id="reportType" class="form-select text-center" style="width:150px;">
+			<option value="weekly">Weekly</option>
+			<option value="monthly">Monthly</option>
+		  </select>
+		  <div id="periodLabel" class="fw-bold mt-2"></div>
+		</div>
+  
+		<button class="btn btn-outline-secondary" id="nextPeriod">→</button>
+	  </div>
+  
+	  <div id="spendingReport"></div>
+	</div>
+  
+	<!-- Smart Suggestions -->
+	<div class="card p-4 mt-4">
+	  <h5>Spending Suggestions</h5>
+	  <div id="suggestions"></div>
+	</div>
+  
+	<!-- Net Worth -->
+	<div class="card p-4 mt-4">
+	  <h5>Net Worth</h5>
+	  <div id="netWorth"></div>
+	</div>
+  </div>
+  
+  <script>
+	let currentWeekOffset = 0;
+	let currentMonthOffset = 0;
+  
+	// Format date range label
+	function formatDateRange(start, end) {
+	  const startDate = new Date(start);
+	  const endDate = new Date(end);
+	  return `${startDate.toDateString()} - ${endDate.toDateString()}`;
+	}
+  
+	function formatMonthLabel(start) {
+	  const date = new Date(start);
+	  return `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`;
+	}
+  
+	// Update Spending Report
+	async function updateSpendingReport() {
+	  const type = document.getElementById("reportType").value;
+	  const offset = type === "weekly" ? currentWeekOffset : currentMonthOffset;
+  
+	  try {
+		const response = await fetch(`/api/insights/spending-report?type=${type}&offset=${offset}`);
+		
+		if (!response.ok) {
+		  throw new Error("Failed to fetch spending report");
+		}
+  
+		const data = await response.json();
+  
+		// Update period label
+		if (type === "weekly") {
+		  document.getElementById("periodLabel").innerText = 
+			`Week of ${formatDateRange(data.startDate, data.endDate)}`;
+		} else {
+		  document.getElementById("periodLabel").innerText = formatMonthLabel(data.startDate);
+		}
+  
+		// Display spending by tag
+		const byTag = data.byTag;
+		let html = "";
+  
+		if (Object.keys(byTag).length === 0) {
+		  html = "<p class='text-muted'>No spending recorded for this period.</p>";
+		} else {
+		  for (const tag in byTag) {
+			html += `<p><strong>${tag}:</strong> $${byTag[tag].toFixed(2)}</p>`;
+		  }
+		  html += `<hr><p><strong>Total Expenses:</strong> $${data.totalExpenses.toFixed(2)}</p>`;
+		}
+  
+		document.getElementById("spendingReport").innerHTML = html;
+  
+		// Update suggestions
+		updateSuggestions(byTag);
+  
+	  } catch (e) {
+		console.error("Error fetching spending report:", e);
+		document.getElementById("spendingReport").innerHTML = 
+		  "<p class='text-danger'>Failed to load spending report.</p>";
+	  }
+	}
+  
+	// Smart Suggestions
+	function updateSuggestions(byTag) {
+	  const tags = Object.entries(byTag);
+  
+	  if (tags.length === 0) {
+		document.getElementById("suggestions").innerHTML =
+		  "<p class='text-muted'>No spending yet — keep tracking your expenses!</p>";
+		return;
+	  }
+  
+	  tags.sort((a, b) => b[1] - a[1]);
+  
+	  const highest = tags[0];
+	  const lowest = tags[tags.length - 1];
+  
+	  let suggestion = `
+		<p><strong>Highest Spending:</strong> ${highest[0]} ($${highest[1].toFixed(2)})</p>
+		<p><strong>Lowest Spending:</strong> ${lowest[0]} ($${lowest[1].toFixed(2)})</p>
+	  `;
+  
+	  if (highest[0].toLowerCase().includes("food") ||
+		  highest[0].toLowerCase().includes("dining") ||
+		  highest[0].toLowerCase().includes("restaurant")) {
+		suggestion += `<p class="mt-2">💡 Try reducing takeout spending — cutting $20/week saves over $1,000 per year!</p>`;
+	  } else {
+		suggestion += `<p class="mt-2">💡 Review your highest spending category to find potential savings.</p>`;
+	  }
+  
+	  document.getElementById("suggestions").innerHTML = suggestion;
+	}
+  
+	// Update Net Worth
+	async function updateNetWorth() {
+	  try {
+		const response = await fetch("/api/insights/net-worth");
+		
+		if (!response.ok) {
+		  throw new Error("Failed to fetch net worth");
+		}
+  
+		const data = await response.json();
+  
+		document.getElementById("netWorth").innerHTML = `
+		  <p><strong>Total Income:</strong> $${data.totalIncome.toFixed(2)}</p>
+		  <p><strong>Total Expenses:</strong> $${data.totalExpenses.toFixed(2)}</p>
+		  <h4 class="mt-2">Net Worth: $${data.netWorth.toFixed(2)}</h4>
+		`;
+	  } catch (e) {
+		console.error("Error fetching net worth:", e);
+		document.getElementById("netWorth").innerHTML = 
+		  "<p class='text-danger'>Failed to load net worth.</p>";
+	  }
+	}
+  
+	// Event Listeners
+	document.getElementById("reportType").addEventListener("change", () => {
+	  currentWeekOffset = 0;
+	  currentMonthOffset = 0;
+	  updateSpendingReport();
+	});
+  
+	document.getElementById("prevPeriod").addEventListener("click", () => {
+	  if (document.getElementById("reportType").value === "weekly") {
+		currentWeekOffset--;
+	  } else {
+		currentMonthOffset--;
+	  }
+	  updateSpendingReport();
+	});
+  
+	document.getElementById("nextPeriod").addEventListener("click", () => {
+	  if (document.getElementById("reportType").value === "weekly") {
+		currentWeekOffset++;
+	  } else {
+		currentMonthOffset++;
+	  }
+	  updateSpendingReport();
+	});
+  
+	// Initial Load
+	document.addEventListener("DOMContentLoaded", () => {
+	  updateSpendingReport();
+	  updateNetWorth();
+	});
+  </script>

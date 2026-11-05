@@ -1,0 +1,70 @@
+<% title = "Lunar Money - Register" %>
+
+<main class="auth-page auth-card card p-4 p-md-5">
+	<div class="text-center mb-4">
+		<div class="auth-logo mb-1">
+			<span><img src="/LM_icon.svg" height="75" width="75" alt="Lunar Money logo" /></span>
+			Lunar Money
+		</div>
+		<p class="mb-0">Create an account to start tracking your finances</p>
+	</div>
+
+	<!-- Toggle between Login and Register -->
+	<ul class="nav nav-pills nav-justified auth-nav mb-4">
+		<li class="nav-item">
+			<a class="nav-link" href="/login">Login</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link active" aria-current="page" href="/register">Create Account</a>
+		</li>
+	</ul>
+
+	<!-- Registration Form -->
+	<form action="/register" method="POST">
+		<div class="mb-3">
+			<label for="username" class="form-label">Username</label>
+			<input type="text" class="form-control" id="username" name="username" required autocomplete="username"
+				placeholder="Enter your username here">
+		</div>
+
+		<div class="mb-3">
+			<label for="email" class="form-label">Email</label>
+			<input type="email" class="form-control" id="email" name="email" required autocomplete="email"
+				placeholder="Enter your email here">
+		</div>
+
+		<div class="mb-3">
+			<label for="currency" class="form-label">Preferred Currency</label>
+			<select class="form-select" id="currency" name="currency" required>
+				<option value="USD" selected>USD $ (US Dollar)</option>
+				<option value="EUR">EUR € (Euro)</option>
+				<option value="GBP">GBP £ (British Pound)</option>
+				<option value="JPY">JPY ¥ (Japanese Yen)</option>
+				<option value="CAD">CAD $ (Canadian Dollar)</option>
+				<option value="AUD">AUD $ (Australian Dollar)</option>
+			</select>
+		</div>
+
+		<div class="mb-3">
+			<label for="password" class="form-label">Password</label>
+			<input type="password" class="form-control" id="password" name="password" required
+				autocomplete="new-password" placeholder="Enter your password here">
+			<% if (typeof error !== 'undefined' && error) { %>
+			<div class="text-danger small-font"><%= error %></div>
+			<% }else{ %>
+			<div class="small-font">
+				Password must be at least 8 characters long and include letters and numbers.
+			</div>
+			<% } %>
+		</div>
+
+		<button type="submit" class="btn btn-primary w-100">
+			Create Account
+		</button>
+	</form>
+
+	<p class="text-center  mt-3 mb-0">
+		Already have an account?
+		<a href="/login">Log in</a>
+	</p>
+</main>
